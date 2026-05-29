@@ -51,9 +51,6 @@ services:
       placement:
         constraints:
           - node.role == manager
-
-      placement:
-        constraints:
           - node.platform.os == linux
 
 networks:
