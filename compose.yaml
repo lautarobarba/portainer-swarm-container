@@ -24,11 +24,13 @@ services:
 
       labels:
         - traefik.enable=true
+        - traefik.docker.network=traefik-network
 
         # Router
         - traefik.http.routers.portainer.rule=Host(`portainer.homelab.local`)
         - traefik.http.routers.portainer.entrypoints=websecure
         - traefik.http.routers.portainer.tls=true
+        - traefik.http.routers.portainer.service=portainer
 
         # Service
         - traefik.http.services.portainer.loadbalancer.server.port=9000
