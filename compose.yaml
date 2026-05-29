@@ -60,6 +60,9 @@ networks:
   portainer-network:
     driver: overlay
     attachable: true
+    ipam:
+      config:
+        - subnet: 10.10.10.0/24
 
 volumes:
   portainer_data:
