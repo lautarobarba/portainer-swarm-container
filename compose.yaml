@@ -1,6 +1,6 @@
 services:
   portainer:
-    image: portainer/portainer-ce:2.21.5
+    image: portainer/portainer-ce:2.42.0
 
     command:
       - -H
@@ -37,7 +37,7 @@ services:
         - traefik.http.services.portainer.loadbalancer.server.port=9000
 
   agent:
-    image: portainer/agent:2.21.5
+    image: portainer/agent:2.42.0
 
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
