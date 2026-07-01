@@ -4,7 +4,7 @@ Docker Compose stack for deploying Portainer CE on a Docker Swarm cluster with T
 
 ## Overview
 
-This stack deploys Portainer CE (v2.21.5) with its agent across a Docker Swarm cluster. Traefik handles TLS termination and routing via the `portainer.homelab.local` hostname.
+This stack deploys Portainer CE with its agent across a Docker Swarm cluster. Traefik handles TLS termination and routing via the `portainer.homelab.local` hostname.
 
 ### Architecture
 
@@ -28,11 +28,11 @@ This stack deploys Portainer CE (v2.21.5) with its agent across a Docker Swarm c
 
 ### Dependencies
 
-| Dependency | Type | Notes |
-|------------|------|-------|
-| Docker Swarm | Required | Cluster must be initialized |
-| Traefik | Required | Must be running with `traefik-network` |
-| DNS | Required | `portainer.homelab.local` must resolve to the cluster |
+| Dependency   | Type     | Notes                                                 |
+| ------------ | -------- | ----------------------------------------------------- |
+| Docker Swarm | Required | Cluster must be initialized                           |
+| Traefik      | Required | Must be running with `traefik-network`                |
+| DNS          | Required | `portainer.homelab.local` must resolve to the cluster |
 
 ## Prerequisites
 
@@ -69,23 +69,23 @@ Open `https://portainer.homelab.local` in your browser.
 
 ### Networks
 
-| Network | Scope | Purpose |
-|---------|-------|---------|
-| `traefik-network` | External (pre-existing) | Connects Portainer to Traefik for routing |
-| `portainer-network` | Overlay (created) | Internal communication between Portainer and agents |
+| Network             | Scope                   | Purpose                                             |
+| ------------------- | ----------------------- | --------------------------------------------------- |
+| `traefik-network`   | External (pre-existing) | Connects Portainer to Traefik for routing           |
+| `portainer-network` | Overlay (created)       | Internal communication between Portainer and agents |
 
 ### Volumes
 
-| Volume | Purpose |
-|--------|---------|
+| Volume           | Purpose                                       |
+| ---------------- | --------------------------------------------- |
 | `portainer_data` | Persistent Portainer data (database, configs) |
 
 ### Services
 
-| Service | Image | Mode | Placement |
-|---------|-------|------|-----------|
+| Service     | Image                           | Mode           | Placement          |
+| ----------- | ------------------------------- | -------------- | ------------------ |
 | `portainer` | `portainer/portainer-ce:2.21.5` | Replicated (1) | Manager nodes only |
-| `agent` | `portainer/agent:2.21.5` | Global | All Linux nodes |
+| `agent`     | `portainer/agent:2.21.5`        | Global         | All Linux nodes    |
 
 ## Runbooks
 
@@ -123,6 +123,7 @@ docker stack rm portainer
 ```
 
 > **Note:** The `portainer_data` volume persists after removal. Delete it manually if needed:
+>
 > ```bash
 > docker volume rm portainer_portainer_data
 > ```
@@ -135,11 +136,11 @@ Traefik handles TLS termination for Portainer via the `websecure` entrypoint.
 
 Traefik must have a certificate resolver configured for `portainer.homelab.local`. Common setups:
 
-| Method | Traefik config | Notes |
-|--------|---------------|-------|
-| **Let's Encrypt (HTTP challenge)** | `certificatesResolvers.le.acme` | Requires port 80 open |
-| **Let's Encrypt (DNS challenge)** | `certificatesResolvers.le.dnsChallenge` | Works behind NAT |
-| **Self-signed / Local CA** | `tls.stores.default.defaultCertificate` | For internal use only |
+| Method                             | Traefik config                          | Notes                 |
+| ---------------------------------- | --------------------------------------- | --------------------- |
+| **Let's Encrypt (HTTP challenge)** | `certificatesResolvers.le.acme`         | Requires port 80 open |
+| **Let's Encrypt (DNS challenge)**  | `certificatesResolvers.le.dnsChallenge` | Works behind NAT      |
+| **Self-signed / Local CA**         | `tls.stores.default.defaultCertificate` | For internal use only |
 
 ### Verify TLS
 
@@ -170,6 +171,7 @@ tls:
 **Symptom**: Service stuck in `pending` state.
 **Cause**: No manager node available or `traefik-network` doesn't exist.
 **Fix**:
+
 ```bash
 docker node ls                          # verify manager exists
 docker network ls | grep traefik-network  # verify network exists
@@ -180,6 +182,7 @@ docker network ls | grep traefik-network  # verify network exists
 **Symptom**: Browser cannot reach `portainer.homelab.local`.
 **Cause**: DNS not configured or Traefik not routing correctly.
 **Fix**:
+
 - Verify DNS resolves: `nslookup portainer.homelab.local`
 - Check Traefik dashboard for the route
 - Verify Traefik labels in `compose.yaml` match your Traefik config
@@ -189,6 +192,7 @@ docker network ls | grep traefik-network  # verify network exists
 **Symptom**: Nodes not showing in Portainer UI.
 **Cause**: Network connectivity issue between services.
 **Fix**:
+
 ```bash
 # Verify both services are on the same overlay network
 docker service inspect portainer_portainer --format '{{json .Spec.TaskTemplate.Networks}}'
