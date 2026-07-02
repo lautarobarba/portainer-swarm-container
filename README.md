@@ -11,13 +11,13 @@ This stack deploys Portainer CE with its agent across a Docker Swarm cluster. Tr
 ```
                     Traefik (external)
                            |
-                    traefik-network
+                    traefik_network
                            |
                      +----------+
                      | Portainer |  <-- manager node only (1 replica)
                      +----------+
                            |
-                   portainer-network (overlay)
+                   portainer_network (overlay)
                            |
               +------------------------+
               |                        |
@@ -31,13 +31,13 @@ This stack deploys Portainer CE with its agent across a Docker Swarm cluster. Tr
 | Dependency   | Type     | Notes                                                 |
 | ------------ | -------- | ----------------------------------------------------- |
 | Docker Swarm | Required | Cluster must be initialized                           |
-| Traefik      | Required | Must be running with `traefik-network`                |
+| Traefik      | Required | Must be running with `traefik_network`                |
 | DNS          | Required | `portainer.homelab.local` must resolve to the cluster |
 
 ## Prerequisites
 
 - Docker Engine with Swarm mode enabled
-- Traefik stack already deployed with an external network named `traefik-network`
+- Traefik stack already deployed with an external network named `traefik_network`
 - DNS record pointing `portainer.homelab.local` to your swarm manager
 
 ## Deployment
@@ -46,7 +46,7 @@ This stack deploys Portainer CE with its agent across a Docker Swarm cluster. Tr
 
 ```bash
 docker node ls
-docker network ls | grep traefik-network
+docker network ls | grep traefik_network
 ```
 
 ### 2. Crear la estructura de directorios en el NFS
@@ -122,10 +122,10 @@ docker service logs portainer_agent
 docker stack rm portainer
 ```
 
-> **Note:** The `portainer-data` volume persists after removal. Delete it manually if needed:
+> **Note:** The `portainer_data` volume persists after removal. Delete it manually if needed:
 >
 > ```bash
-> docker volume rm portainer-portainer_data
+> docker volume rm portainer_portainer_data
 > ```
 
 ## Troubleshooting
@@ -133,12 +133,12 @@ docker stack rm portainer
 ### Portainer service won't start
 
 **Symptom**: Service stuck in `pending` state.
-**Cause**: No manager node available or `traefik-network` doesn't exist.
+**Cause**: No manager node available or `traefik_network` doesn't exist.
 **Fix**:
 
 ```bash
 docker node ls                          # verify manager exists
-docker network ls | grep traefik-network  # verify network exists
+docker network ls | grep traefik_network  # verify network exists
 ```
 
 ### Cannot access via hostname

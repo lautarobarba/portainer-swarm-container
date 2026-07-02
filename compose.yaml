@@ -8,11 +8,11 @@ services:
       - --tlsskipverify
 
     volumes:
-      - portainer-data:/data
+      - portainer_data:/data
 
     networks:
-      - traefik-network
-      - portainer-network
+      - traefik_network
+      - portainer_network
 
     deploy:
       mode: replicated
@@ -23,14 +23,12 @@ services:
 
       labels:
         - traefik.enable=true
-        - traefik.docker.network=traefik-network
-
+        - traefik.docker.network=traefik_network
         # Router
         - traefik.http.routers.portainer.rule=Host(`portainer.home.local`)
         - traefik.http.routers.portainer.entrypoints=websecure
         - traefik.http.routers.portainer.tls=true
         - traefik.http.routers.portainer.service=portainer
-
         # Service
         - traefik.http.services.portainer.loadbalancer.server.port=9000
 
@@ -42,7 +40,7 @@ services:
       - /var/lib/docker/volumes:/var/lib/docker/volumes
 
     networks:
-      - portainer-network
+      - portainer_network
 
     deploy:
       replicas: 1
@@ -52,10 +50,10 @@ services:
           - node.platform.os == linux
 
 networks:
-  traefik-network:
+  traefik_network:
     external: true
 
-  portainer-network:
+  portainer_network:
     driver: overlay
     attachable: true
     ipam:
@@ -64,7 +62,7 @@ networks:
 
 volumes:
   # Reemplazar addr=127.0.0.1 para pruebas locales
-  portainer-data:
+  portainer_data:
     driver: local
     driver_opts:
       type: nfs
