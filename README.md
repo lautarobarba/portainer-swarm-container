@@ -49,43 +49,29 @@ docker node ls
 docker network ls | grep traefik-network
 ```
 
-### 2. Deploy the stack
+### 2. Crear la estructura de directorios en el NFS
+
+```bash
+mkdir -p /srv/nfs/portainer
+chmod 777 /srv/nfs/portainer
+chown -R nobody:nogroup /srv/nfs/portainer
+```
+
+### 3. Deploy the stack
 
 ```bash
 docker stack deploy -c compose.yaml portainer
 ```
 
-### 3. Verify services
+### 4. Verify services
 
 ```bash
 docker stack ps portainer
 ```
 
-### 4. Access Portainer
+### 5. Access Portainer
 
 Open `https://portainer.homelab.local` in your browser.
-
-## Configuration
-
-### Networks
-
-| Network             | Scope                   | Purpose                                             |
-| ------------------- | ----------------------- | --------------------------------------------------- |
-| `traefik-network`   | External (pre-existing) | Connects Portainer to Traefik for routing           |
-| `portainer-network` | Overlay (created)       | Internal communication between Portainer and agents |
-
-### Volumes
-
-| Volume           | Purpose                                       |
-| ---------------- | --------------------------------------------- |
-| `portainer_data` | Persistent Portainer data (database, configs) |
-
-### Services
-
-| Service     | Image                           | Mode           | Placement          |
-| ----------- | ------------------------------- | -------------- | ------------------ |
-| `portainer` | `portainer/portainer-ce:2.21.5` | Replicated (1) | Manager nodes only |
-| `agent`     | `portainer/agent:2.21.5`        | Global         | All Linux nodes    |
 
 ## Runbooks
 
@@ -122,47 +108,11 @@ docker service logs portainer_agent
 docker stack rm portainer
 ```
 
-> **Note:** The `portainer_data` volume persists after removal. Delete it manually if needed:
+> **Note:** The `portainer-data` volume persists after removal. Delete it manually if needed:
 >
 > ```bash
-> docker volume rm portainer_portainer_data
+> docker volume rm portainer-portainer_data
 > ```
-
-## TLS / Certificates
-
-Traefik handles TLS termination for Portainer via the `websecure` entrypoint.
-
-### Certificate resolution
-
-Traefik must have a certificate resolver configured for `portainer.homelab.local`. Common setups:
-
-| Method                             | Traefik config                          | Notes                 |
-| ---------------------------------- | --------------------------------------- | --------------------- |
-| **Let's Encrypt (HTTP challenge)** | `certificatesResolvers.le.acme`         | Requires port 80 open |
-| **Let's Encrypt (DNS challenge)**  | `certificatesResolvers.le.dnsChallenge` | Works behind NAT      |
-| **Self-signed / Local CA**         | `tls.stores.default.defaultCertificate` | For internal use only |
-
-### Verify TLS
-
-```bash
-# Check certificate expiry
-echo | openssl s_client -connect portainer.homelab.local:443 -servername portainer.homelab.local 2>/dev/null | openssl x509 -noout -dates
-
-# Check Traefik certificate store
-docker exec <traefik-container> cat /etc/traefik/acme.json | jq '.[].Certificates[] | select(.domain.main == "portainer.homelab.local")'
-```
-
-### Using a custom certificate
-
-If you need to provide your own certificate, mount it into the Traefik container and configure:
-
-```yaml
-# In your Traefik compose file
-tls:
-  certificates:
-    - certFile: /certs/portainer.crt
-      keyFile: /certs/portainer.key
-```
 
 ## Troubleshooting
 
