@@ -69,7 +69,21 @@ docker stack deploy -c compose.yaml portainer
 docker stack ps portainer
 ```
 
-### 5. Access Portainer
+### 5. Token para registro
+
+Para crear la primer cuenta de administrador necesitamos el setup_token
+
+```bash
+$ docker service logs -f portainer_portainer
+# Buscar dentro de los primeros logs el output con el setup_token
+...
+portainer_portainer > github.com/portainer/portainer/api/cmd/portainer/main.go:256 > no administrator account configured; admin initialization and backup restore require this setup token in the X-Setup-Token header. Start with --no-setup-token to disable. | setup_token=9999999999999999999999999999
+...
+```
+
+Open `https://portainer.homelab.local` in your browser.
+
+### 6. Access Portainer
 
 Open `https://portainer.homelab.local` in your browser.
 
